@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive Swimming</title>
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.699), rgba(255, 255, 255, 0.753)), url("Pool.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* This keeps the image locked in place while you scroll */
+        }
+
+        header {
+            background: linear-gradient(135deg, #005c97, #363795);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #bbb;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover {
+            color: white;
+            background-color: #333;
+        }
+
+        nav button.active {
+            color: white;
+            background-color: #005c97;
+            font-weight: bold;
+        }
+ 
+        /* Main Content Container */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Page Sections (Hidden by default) */
+        .page-content {
+            display: none;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Show active page */
+        .page-content.active {
+            display: block;
+        }
+
+        /* Typography & Layout Helpers */
+        h2 {
+            color: #005c97;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #333;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        h4 {
+            font-size: 16px;
+            color:#00007b
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-left: 4px solid #005c97;
+            border-radius: 4px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            background-color: #222;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        a:link{
+            font-size:22px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight:bold;
+        }
+        a:hover{
+            font-size:22.5px;
+            color:#ff0000
+        }
+        a:active{
+            color:rgb(38, 0, 255)
+        }
+
+        img{
+            width:400px;
+        }
+
+        .leaderboard-section {
+            padding: 3rem 1rem;
+            text-align: center;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .subtitle {
+            color: #009bbe;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .filter-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .toggle-btn, .disc-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #000000;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 20px;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .toggle-btn.active, .disc-btn.active, .toggle-btn:hover, .disc-btn:hover {
+            background: #00d2ff;
+            color: #111;
+            border-color: #00d2ff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: rgb(0, 0, 0);
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .leaderboard-table th {
+            background: rgba(0, 210, 255, 0.15);
+            color: #07758e;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .leaderboard-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .event-cell {
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .time-cell {
+            font-weight: 700;
+            color: #008caf;
+            font-family: monospace;
+            font-size: 1.05rem;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-table th, .leaderboard-table td {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .muscle-map-section {
+            padding: 3rem 1rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .map-container {
+            background: rgba(121, 201, 255, 0.163);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stroke-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            background-color: #e2faff;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            color: rgb(54, 137, 255);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .map-btn.active, .map-btn:hover {
+            background: #00d2ff;
+            color: #111;
+            border-color: #00d2ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+        }
+
+        .anatomy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .muscle-group {
+            background: rgb(255, 255, 255);
+            border: 1px solid rgba(10, 51, 255, 0.529);
+            border-radius: 12px;
+            padding: 1.2rem;
+            color: rgb(0, 0, 0);
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0.4; /* Dimmed by default until highlighted */
+            transform: scale(0.95);
+        }
+
+        /* Glowing active states */
+        .muscle-group.activated {
+            opacity: 1;
+            transform: scale(1);
+            background: rgba(0, 210, 255, 0.1);
+            border-color: #00d2ff;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .muscle-group h4 {
+            margin: 0 0 0.5rem 0;
+            color: #000000;
+            transition: color 0.3s ease;
+        }
+
+        .muscle-group.activated h4 {
+            color: #2f7af2;
+        }
+
+        .muscle-group p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #000000;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Competitive Swimming</h1>
+        <p>Your Ultimate Guide to Strokes, Techniques, and Training</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="openPage(event, 'home')">Home</button>
+        <button class="nav-btn" onclick="openPage(event, 'butterfly')">Butterfly</button>
+        <button class="nav-btn" onclick="openPage(event, 'backstroke')">Backstroke</button>
+        <button class="nav-btn" onclick="openPage(event, 'breaststroke')">Breaststroke</button>
+        <button class="nav-btn" onclick="openPage(event, 'freestyle')">Freestyle</button>
+        <button class="nav-btn" onclick="openPage(event, 'records')">Records</button>
+    </nav>
+
+    <div class="container">
+
+        <div id="home" class="page-content active">
+            <h2>Welcome to Competitive Swimming</h2>
+            <p>Welcome to the ultimate resource for competitive swimmers, coaches, and fans of the sport! Whether you are a beginner learning the ropes, a seasoned athlete looking to shave tenths of a second 
+                off your personal best, or someone who simply loves the thrill of the race, you have found your community.</p>
+            <p>On this website, we break down the core pillars of competitive swimming. Explore our dedicated pages for each of the four strokes: Butterfly, Backstroke, 
+                Breaststroke, and Freestyle. Inside, you will find information on proper mechanics, essential training drills, and tips to help you optimize your 
+                efficiency in the pool.</p>
+            <p>Dive in, explore the techniques, and let's work together to unlock your full potential in the fast lane!</p>
+            <p>Want a feel for how competitive swimming is? Play our small swimming clicker game!</p>
+            <a href="game.html" class="nav-btn">Play Swim Clicker!</a>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>About The Sport</h3>
+                    <p>Competitive swimming is a universally celebrated sport that tests the limits of human speed and endurance in the water. From local summer leagues to the grand stage of the Olympic Games, 
+                        swimming is governed globally by World Aquatics (formerly known as FINA), which establishes the official rules, dimensions for pools, and regulations for equipment and swimwear.</p> 
+                    <h4>Short Course:</h4>
+                    <p>Typically swum in a 25-yard pool (common in American collegiate racing) or a 25-meter pool (common internationally during the winter season). These races emphasize explosive 
+                        turns and powerful underwater pullouts.</p>
+                    <h4>Long Course:</h4>
+                    <p>Swum in a 50-meter pool, which is the official Olympic standard. Long course racing is the ultimate test of sustained pacing and pure aerobic capacity, as there are half as 
+                        many walls to push off from.</p>
+                    <p>Athletes compete both individually and as part of a relay. Individual events range from the explosive 50-meter sprints to the grueling 1500-meter distance race. 
+                        Relays consist of four swimmers taking turns to complete one race.</p>
+                </div>
+                <div class="card">
+                    <h3>Training & Discipline</h3>
+                    <p>Behind every fast race in the pool are hundreds of hours of silent, unseen dedication. Competitive swimming is widely recognized as one of the most grueling sports in existence, 
+                        demanding a level of discipline that carries over into every aspect of an athlete's life.</p>
+                    <h4>In the Pool (The Yardage):</h4>
+                    <p>Swimmers routinely log thousands of meters per week. Training consists of aerobic base-building, high-intensity anaerobic sprints, and technical pace work. It is not uncommon 
+                        for competitive athletes to practice twice a day, often waking up before dawn to get their yards in before school or work.</p>
+                    <h4>Dryland & Weight Training:</h4>
+                    <p>Speed in the water requires power on land. Swimmers engage in "dryland" training, which includes core stabilization exercises, flexibility routines, yoga, and weightlifting. 
+                        This builds the explosive power needed for starts and turns while strengthening the shoulder and back muscles to prevent injury.
+                    <h4>The Mental Edge:</h4>
+                    <p>Swimming is as much a mental game as a physical one. Staring at a black line on the bottom of the pool for hours requires immense focus and mental fortitude. Swimmers must 
+                        cultivate extreme resilience to push through lactic acid buildup, manage racing anxiety, and maintain perfect technique even when their bodies are screaming for oxygen.</p>
+                </div>
+            </div>
+            
+            <section class="muscle-map-section">
+                <h2>Anatomy of a Swimmer</h2>
+                <p class="subtitle">Click a stroke to see which muscle groups are primary movers</p>
+
+                <div class="map-container">
+                    <div class="stroke-selector">
+                        <button class="map-btn active" onclick="highlightMuscles('free')">Freestyle</button>
+                        <button class="map-btn" onclick="highlightMuscles('back')">Backstroke</button>
+                        <button class="map-btn" onclick="highlightMuscles('breast')">Breaststroke</button>
+                        <button class="map-btn" onclick="highlightMuscles('fly')">Butterfly</button>
+                    </div>
+
+                    <div class="anatomy-grid">
+                        <div class="muscle-group" id="m-shoulders">
+                            <h4>Deltoids & Shoulders</h4>
+                            <p>Crucial for recovery phase and clean entry.</p>
+                        </div>
+                        <div class="muscle-group" id="m-lats">
+                            <h4>Latissimus Dorsi (Back)</h4>
+                            <p>The main engine driving the underwater pull.</p>
+                        </div>
+                        <div class="muscle-group" id="m-core">
+                            <h4>Core & Abs</h4>
+                            <p>Maintains streamline position and body rotation.</p>
+                        </div>
+                        <div class="muscle-group" id="m-legs">
+                            <h4>Quads & Glutes</h4>
+                            <p>Powers the continuous kick and wall push-offs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="butterfly" class="page-content">
+            <h2>Butterfly</h2>
+            <p>The Butterfly is the most physically demanding and visually striking stroke in competitive swimming. Developed in the 1930s as a variation of the breaststroke, it became its own official stroke in 1952.</p>
+            <img src="Butterfly.avif" alt="Butterfly Photo">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technique & Mechanics</h3>
+                    <p>The butterfly stroke relies entirely on fluid momentum, core strength, and precise timing. To swim it efficiently without burning out, you must master how your body wave, kick, and arm pull work together.</p>
+                    <h4>The Body Wave (Undulation):</h4>
+                        The butterfly does not start in the arms or legs—it starts in your core. Your body should move in a continuous, fluid wave-like motion that originates from your chest and drives down through your hips. When your chest presses down into the water, your hips should rise, and vice versa. Keeping your hips high near the surface is crucial for reducing drag.</p>
+                    <h4>The Two-Kick Rhythm:</h4>
+                        You must execute exactly two dolphin kicks for every one arm stroke.</p>
+                    <h4>The Arm Pull & High-Elbow Catch:</h4>
+                        <p>Your hands should enter the water shoulder-width apart, thumb-first. Once in the water, sweep your hands outward and downward into a "high-elbow" position (the catch) to grip the water. Pull straight back beneath your body in an hourglass shape, pushing the water dynamically toward your feet.</p>
+                </div>
+                <div class="card">
+                    <h3>Common Drills</h3>
+                    <p>Mastering the butterfly requires breaking the stroke down into manageable pieces to focus on timing, rhythm, and pull mechanics. Here are three of the most effective drills used by competitive swimmers:
+                    <h4>Single-Arm Butterfly:</h4>
+                    <p>Keep one arm extended straight out in front of you (or at your side) while executing the normal butterfly pulling motion with the other arm. Breathe to the side,
+                        just like in freestyle. This drill allows you to focus on the precision of your hand entry, the high-elbow catch, and synchronizing your two dolphin kicks per stroke without getting 
+                        exhausted.</p>
+                    <h4>Body Dolphin (with or without fins):</h4>
+                    <p>Streamline your arms tightly past your ears and focus entirely on the undulating movement of your hips and core. The movement should originate from 
+                        your chest, not your knees. This builds the foundational core strength and rhythm needed to keep your hips high in the water during the full stroke.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="backstroke" class="page-content">
+            <h2>Backstroke</h2>
+            <p>The Backstroke holds a distinctive place in competitive swimming as the only discipline swum entirely on the back. While backstroke allows for unrestricted breathing since your face stays out 
+                of the water, it requires precise stroke counting and intense spatial awareness to navigate safely without being able to see where you are going.</p>
+            <img src="Backstroke.jpg" alt="Backstroke Photo">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technique & Mechanics</h3>
+                    <p>Backstroke efficiency relies on a perfectly flat body line, continuous propulsion, and rhythmic shoulder rotation. Because you are facing upward, maintaining control over your body 
+                        position is key to preventing your hips from sinking.</p>
+                    <h4>Body Position & Head Alignment:</h4>
+                    <p>Keep your head completely still with your ears submerged to prevent your hips from sinking and creating drag.</p>
+                    <h4>The Continuous Flutter Kick:</h4>
+                    <p>Maintain a fast, relentless, and compact kick driven from the hips with pointed toes to provide constant propulsion.</p>
+                    <h4>Shoulder Rotation:</h4>
+                    <p>Roll your body smoothly from side to side along your spine to get a deeper arm reach and engage your larger back muscles.</p>
+                    <h4>The Arm Cycle:</h4>
+                    <p>Enter the water pinky-first and exit thumb-first, bending your elbow to 90 degrees underwater to efficiently push the water toward your feet.</p>
+                </div>
+                <div class="card">
+                    <h3>Starts & Turns</h3>
+                    <p>Because swimmers cannot dive from the blocks or see the wall during the approach, the starts and turns in backstroke require specific, highly technical maneuvers.</p>
+                    <h4>The Backstroke Start:</h4>
+                    <p>Swimmers start in the water facing the wall, holding onto the starting block grips. At the starter's signal, swimmers explode backward out of the water, arching their backs to clear the 
+                    surface before entering through a single point. Many modern pools utilize a "backstroke ledge" to prevent the feet from slipping on the touchpads.</p>
+                    <h4>The Underwater Dolphin Kick:</h4>
+                    <p>After the start and each turn, swimmers remain on their backs to execute fast, powerful underwater dolphin kicks. Underwater dolphin kicks are limited by rule to a maximum of 15 meters before
+                        the swimmer's head must break the surface.</p>
+                    <h4>The Flip Turn:</h4>
+                    <p>To turn, backstrokers use the overhead flags (placed 5 meters or yards from the wall) to count their strokes. At the correct moment, the swimmer flips over onto their stomach, executes a single 
+                        freestyle arm pull, and immediately goes into a standard forward flip turn, to then push off the wall on their back to begin their underwater dolphin kicks.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="breaststroke" class="page-content">
+            <h2>Breaststroke</h2>
+            <p>Breaststroke is the oldest of all competitive swimming strokes and stands out as the most unique discipline in the pool. Unlike the other three strokes, which rely primarily on the arms for speed, 
+                breaststroke derives the vast majority of its power and propulsion from the legs.</p>
+            <img src="Breaststroke.jpg" alt="Breaststroke Photo">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technique & Mechanics</h3>
+                    <p>Breaststroke efficiency relies on perfect timing, a powerful kick, and maintaining a hydrodynamic body line to reduce the immense water resistance created during the recovery phase.</p>
+                    <h4>The Arm Stroke (The Pull):</h4>
+                    <p>The pull is short and stays entirely in front of your shoulders. Start with your arms extended forward, sweep your hands outward, and then press downward and inward with your forearms. 
+                        This downward pressure lifts your head and chest out of the water to take a breath. Immediately shoot your hands rapidly forward into a tight streamline.</p>
+                    <h4>The Whip Kick:</h4>
+                    <p>The breaststroke kick provides the main forward momentum. Bring your heels up toward your glutes by flexing at your knees and hips. Turn your feet outward so your arches face backward, 
+                        then sweep your legs out and violently snap them back together in a circular "whip" motion.</p>
+                    <h4>The Timing Sequence:</h4>
+                    <p>The foundational rhythm is pull, breathe, kick, glide. Your legs must recover forward while your arms are pulling, and your legs must snap shut just as your arms reach full extension.</p>
+                    <h4>The Glide Phase:</h4>
+                    <p>Because breaststroke creates a lot of resistance, you must capitalize on your momentum. Hold a dead-straight streamline position for a brief moment after the kick snaps shut to maximize
+                        your distance per stroke before starting the next pull.</p>
+                </div>
+                <div class="card">
+                    <h3>The Underwater Pullout</h3>
+                    <p>The underwater pullout is a highly technical, single sequence allowed exclusively after the start of the race and after each turn. It allows the swimmer to travel at maximum velocity
+                        beneath the surface before breaking into the regular stroke.</p>
+                    <h4>The Launch (The Streamline):</h4>
+                    <p>After diving off the block or pushing off the wall, hold a tight, motionless streamline position to ride out the initial explosive speed.</p>
+                    <h4>The Arm Pull-Down:</h4>
+                    <p>While completely submerged, perform one massive arm stroke that pulls all the way down past your hips, bringing your arms flat against your thighs.</p>
+                    <h4>The Dolphin Kick:</h4>
+                    <p>A single dolphin kick is permitted during or immediately after the initial arm pull-down to add extra speed. The timing must be precise to maintain momentum.</p>
+                    <h4>The Recovery & Breaststroke Kick:</h4>
+                    <p>Bring your hands back up along the centerline of your chest to return them to the forward position, while simultaneously bringing your legs up to execute one full breaststroke whip kick.</p>
+                    <h4>The Breakout:</h4>
+                    <p>As the kick drives you forward, your head must break the surface of the water before your hands turn inward at the widest part of the second arm stroke.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="freestyle" class="page-content">
+            <h2>Freestyle (Front Crawl)</h2>
+            <p>Freestyle—often referred to in competition as the front crawl—is the fastest, most efficient, and most popular of all the competitive swimming strokes. In a freestyle event, the rules technically
+                allow swimmers to use any stroke they choose, but because the front crawl maximizes hydrodynamics and continuous propulsion, it has become synonymous with "freestyle."</p>
+            <img src="Freestyle.jpg" alt="Freestyle Photo">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technique & Mechanics</h3>
+                    <p>Freestyle efficiency is all about maximizing forward propulsion while keeping your body streamlined to minimize water resistance.</p>
+                    <h4>The High-Elbow Catch:</h4>
+                    <p>Enter fingertips-first and bend your elbow early, using your entire hand and forearm as a paddle to press the water straight backward.</p>
+                    <h4>Bilateral Breathing:</h4>
+                    <p>Rotate your head to alternating sides with your body roll, keeping one goggle lens submerged to avoid lifting your head and dropping your hips.</p>
+                    <h4>Body Rotation:</h4>
+                    <p>Roll your torso and hips smoothly from side to side along your spine to enable a cleaner arm recovery and engage your powerful back muscles.</p>
+                    <h4>The Flutter Kick:</h4>
+                    <p>Drive a compact, continuous kick directly from your hips with flexible ankles to provide steady stabilization and keep your lower body high.</p>
+                </div>
+                <div class="card">
+                    <h3>Distance vs. Sprinting</h3>
+                    <p>While the basic mechanics of freestyle remain the same, the strategy, pacing, and kicking dynamics change drastically depending on the length of the race.
+                    <h4>Sprinting (50m to 100m):</h4>
+                    <p>Sprinting is an all-out explosion of power. Swimmers employ a rapid, heavy 6-beat kick (six kicks per arm cycle) to keep their hips riding exceptionally high on top of the water. 
+                        The stroke rate is incredibly high, breathing is kept to an absolute minimum to reduce drag, and the arm recovery is often flatter and more aggressive.</p>
+                    <h4>Distance Swimming (400m to 1500m):</h4>
+                    <p>Distance racing is a calculated game of efficiency and oxygen management. Swimmers typically switch to a relaxed 2-beat or 4-beat kick to conserve leg muscle energy for the later laps. 
+                        The arm stroke emphasizes a longer, patient glide at the front of each stroke to maximize distance per pull, and breathing becomes frequent and highly rhythmic (usually every two strokes) 
+                        to fuel the muscles with continuous oxygen.</p>
+                </div>
+            </div>
+        </div>
+        <div id="records" class="page-content">
+            <section class="leaderboard-section">
+                <h2>World Aquatics Records</h2>
+                <p class="subtitle">Official Individual Long Course World Records</p>
+    
+                <div class="filter-wrapper">
+                    <div class="toggle-container">
+                        <button class="toggle-btn gender-btn active" onclick="setGender('mens')">Men's</button>
+                        <button class="toggle-btn gender-btn" onclick="setGender('womens')">Women's</button>
+                    </div>
+        
+                    <div class="discipline-container">
+                        <button class="disc-btn active" onclick="setStroke('all')">All Strokes</button>
+                        <button class="disc-btn" onclick="setStroke('free')">Freestyle</button>
+                        <button class="disc-btn" onclick="setStroke('back')">Backstroke</button>
+                        <button class="disc-btn" onclick="setStroke('breast')">Breaststroke</button>
+                        <button class="disc-btn" onclick="setStroke('fly')">Butterfly</button>
+                        <button class="disc-btn" onclick="setStroke('im')">Medley</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                               <th>Time</th>
+                                <th>Swimmer</th>
+                                <th>Nation</th>
+                                <th>Meet / Location</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+            <script>
+            // Comprehensive database of all individual long-course world records
+            const globalRecords = {
+                mens: [
+                    { type: "free", event: "50m Freestyle", time: "20.88", name: "Cameron McEvoy", nation: "Australia", meet: "2026 China Open" },
+                    { type: "free", event: "100m Freestyle", time: "46.40", name: "Pan Zhanle", nation: "China", meet: "2024 Paris Olympics" },
+                    { type: "free", event: "200m Freestyle", time: "1:42.00", name: "Paul Biedermann", nation: "Germany", meet: "2009 World Champs" },
+                    { type: "free", event: "400m Freestyle", time: "3:39.96", name: "Lukas Märtens", nation: "Germany", meet: "2025 Stockholm Open" },
+                    { type: "free", event: "800m Freestyle", time: "7:32.12", name: "Zhang Lin", nation: "China", meet: "2009 World Champs" },
+                    { type: "free", event: "1500m Freestyle", time: "14:30.67", name: "Bobby Finke", nation: "United States", meet: "2024 Paris Olympics" },
+        
+                    { type: "back", event: "50m Backstroke", time: "23.55", name: "Kliment Kolesnikov", nation: "Russia", meet: "2023 Russian Cup" },
+                    { type: "back", event: "100m Backstroke", time: "51.60", name: "Thomas Ceccon", nation: "Italy", meet: "2022 World Champs" },
+                    { type: "back", event: "200m Backstroke", time: "1:51.92", name: "Aaron Peirsol", nation: "United States", meet: "2009 World Champs" },
+        
+                    { type: "breast", event: "50m Breaststroke", time: "25.95", name: "Adam Peaty", nation: "Great Britain", meet: "2017 World Champs" },
+                    { type: "breast", event: "100m Breaststroke", time: "56.88", name: "Adam Peaty", nation: "Great Britain", meet: "2019 World Champs" },
+                    { type: "breast", event: "200m Breaststroke", time: "2:05.48", name: "Qin Haiyang", nation: "China", meet: "2023 World Champs" },
+        
+                    { type: "fly", event: "50m Butterfly", time: "22.27", name: "Andrii Govorov", nation: "Ukraine", meet: "2018 Sette Colli" },
+                    { type: "fly", event: "100m Butterfly", time: "49.45", name: "Caeleb Dressel", nation: "United States", meet: "2021 Tokyo Olympics" },
+                    { type: "fly", event: "200m Butterfly", time: "1:50.34", name: "Kristóf Milák", nation: "Hungary", meet: "2022 World Champs" },
+        
+                    { type: "im", event: "200m Ind. Medley", time: "1:52.69", name: "Léon Marchand", nation: "France", meet: "2025 World Champs" },
+                    { type: "im", event: "400m Ind. Medley", time: "4:02.50", name: "Léon Marchand", nation: "France", meet: "2023 World Champs" }
+                ],
+                womens: [
+                    { type: "free", event: "50m Freestyle", time: "23.61", name: "Sarah Sjöström", nation: "Sweden", meet: "2023 World Champs" },
+                    { type: "free", event: "100m Freestyle", time: "51.71", name: "Sarah Sjöström", nation: "Sweden", meet: "2017 World Champs" },
+                    { type: "free", event: "200m Freestyle", time: "1:52.85", name: "Mollie O'Callaghan", nation: "Australia", meet: "2023 World Champs" },
+                    { type: "free", event: "400m Freestyle", time: "3:55.38", name: "Ariarne Titmus", nation: "Australia", meet: "2023 World Champs" },
+                    { type: "free", event: "800m Freestyle", time: "8:04.79", name: "Katie Ledecky", nation: "United States", meet: "2016 Rio Olympics" },
+                    { type: "free", event: "1500m Freestyle", time: "15:20.48", name: "Katie Ledecky", nation: "United States", meet: "2018 TYR Pro Series" },
+        
+                    { type: "back", event: "50m Backstroke", time: "26.86", name: "Kaylee McKeown", nation: "Australia", meet: "2023 Budapest Cup" },
+                    { type: "back", event: "100m Backstroke", time: "57.13", name: "Regan Smith", nation: "United States", meet: "2024 US Trials" },
+                    { type: "back", event: "200m Backstroke", time: "2:03.14", name: "Kaylee McKeown", nation: "Australia", meet: "2023 NSW State Open" },
+        
+                    { type: "breast", event: "50m Breaststroke", time: "29.16", name: "Rūta Meilutytė", nation: "Lithuania", meet: "2023 World Champs" },
+                    { type: "breast", event: "100m Breaststroke", time: "1:04.13", name: "Lilly King", nation: "United States", meet: "2017 World Champs" },
+                    { type: "breast", event: "200m Breaststroke", time: "2:17.55", name: "Evgeniia Chikunova", nation: "Russia", meet: "2023 Russian Champs" },
+        
+                    { type: "fly", event: "50m Butterfly", time: "24.43", name: "Sarah Sjöström", nation: "Sweden", meet: "2014 Swedish Grand Prix" },
+                    { type: "fly", event: "100m Butterfly", time: "54.33", name: "Gretchen Walsh", nation: "United States", meet: "2026 Ft. Lauderdale Open" },
+                    { type: "fly", event: "200m Butterfly", time: "2:01.81", name: "Liu Zige", nation: "China", meet: "2009 Chinese National Games" },
+        
+                    { type: "im", event: "200m Ind. Medley", time: "2:05.70", name: "Summer McIntosh", nation: "Canada", meet: "2025 Canadian Trials" },
+                    { type: "im", event: "400m Ind. Medley", time: "4:24.38", name: "Summer McIntosh", nation: "Canada", meet: "2024 Canadian Trials" }
+                ]
+            };
+
+            let currentGender = 'mens';
+            let currentStroke = 'all';
+
+            function setGender(gender) {
+                currentGender = gender;
+                document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                renderTable();
+            }
+
+            function setStroke(stroke) {
+                currentStroke = stroke;
+                document.querySelectorAll('.disc-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                renderTable();
+            }
+
+            function renderTable() {
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = ''; // Reset the existing rows
+    
+                // Filter the records array based on selectors
+                const filtered = globalRecords[currentGender].filter(record => {
+                    return currentStroke === 'all' || record.type === currentStroke;
+                });
+    
+                // Inject the records row into HTML layout
+                filtered.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="event-cell">${row.event}</td>
+                        <td class="time-cell">${row.time}</td>
+                        <td>${row.name}</td>
+                        <td>${row.nation}</td>
+                        <td>${row.meet}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Initial build on page load
+            window.onload = function() {
+                renderTable();
+            };
+            </script>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Competitive Swimming Guide. All rights reserved.</p>
+        <p>Template created for custom swimming content.</p>
+    </footer>
+
+    <script>
+        function openPage(evt, pageId) {
+            // Hide all page content sections
+            const pages = document.getElementsByClassName("page-content");
+            for (let i = 0; i < pages.length; i++) {
+                pages[i].classList.remove("active");
+            }
+
+            // Remove the "active" class from all navigation buttons
+            const buttons = document.getElementsByClassName("nav-btn");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove("active");
+            }
+
+            // Show the current page, and add an "active" class to the button that opened it
+            document.getElementById(pageId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            // Scroll smoothly to the top of the content area when switching pages
+            window.scrollTo({ top: 180, behavior: 'smooth' });
+        }
+        const strokeMuscles = {
+            free: ['m-lats', 'm-core'],
+            back: ['m-shoulders', 'm-lats'],
+            breast: ['m-legs', 'm-core'],
+            fly: ['m-shoulders', 'm-lats', 'm-core', 'm-legs'] // Butterfly uses everything!
+        };
+
+        function highlightMuscles(stroke) {
+            // 1. Manage active state of buttons
+            const buttons = document.querySelectorAll('.map-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 2. Clear all highlighted muscle cards
+            const groups = document.querySelectorAll('.muscle-group');
+            groups.forEach(group => group.classList.remove('activated'));
+
+            // 3. Highlight only the muscles tied to the clicked stroke
+            const activeMuscles = strokeMuscles[stroke];
+            activeMuscles.forEach(id => {
+                document.getElementById(id).classList.add('activated');
+            });
+        }
+
+        // Automatically trigger freestyle tracking when the page finishes loading
+        document.addEventListener("DOMContentLoaded", () => {
+            highlightMuscles('free');
+        });
+    </script>
+
+</body>
+</html>

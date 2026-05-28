@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Championship Swimming Clicker</title>
+    <style>
+        :root {
+            --pool-blue: #00b7ff;
+            --lane-line: #e63946;
+            --water-dark: #1d3557;
+            --wood: #a8dadc;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #595959;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #f1faee;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: inherit;
+        }
+        
+        p{
+            font-size:10px;
+        }
+
+        #ui-container {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .controls-row {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        select {
+            background-color: #333;
+            color: white;
+            border: 2px solid var(--wood);
+            padding: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: var(--lane-line);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 3px 3px 0px #fff;
+        }
+
+        button:hover {
+            background-color: #ff4d5a;
+        }
+
+        button:disabled {
+            background-color: #555;
+            color: #aaa;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        #instructions {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        /* Pool Layout */
+        #pool {
+            position: relative;
+            width: 800px;
+            background-color: var(--pool-blue);
+            border: 10px solid #444;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .lane {
+            position: relative;
+            height: 45px;
+            border-bottom: 2px dashed var(--lane-line);
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        .lane-number {
+            position: absolute;
+            left: 5px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            z-index: 2;
+        }
+
+        /* Finish Line */
+        #finish-line {
+            position: absolute;
+            right: 60px;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #fff,
+                #fff 10px,
+                #000 10px,
+                #000 20px
+            );
+            z-index: 1;
+        }
+
+        /* Swimmer Sprites */
+        .swimmer {
+            position: absolute;
+            left: 30px;
+            width: 35px;
+            height: 20px;
+            background-color: #e9c46a;
+            border-radius: 10px;
+            transition: left 0.05s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* Highlight the player lane */
+        .lane.player-lane {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .lane.player-lane .swimmer {
+            background-color: #f4a261;
+            border: 2px solid #fff;
+        }
+
+        /* Modal Overlay for Results */
+        #results-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--water-dark);
+            padding: 30px;
+            border: 4px solid #fff;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #e9c46a;
+        }
+
+        .results-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .results-table th, .results-table td {
+            padding: 8px;
+            border-bottom: 1px solid #444;
+            text-align: left;
+        }
+
+        .player-row {
+            color: #f4a261;
+            font-weight: bold;
+        }
+
+        .link:link{
+            color: #ffffff;
+            font-size:24px;
+            background-color: #ff0000;
+            box-shadow: 3px 3px 0px #fff;
+            font-family:inherit;
+            text-decoration-line: none;
+            font-weight: bold;
+        }
+        .link:hover{
+            color: rgb(255, 255, 255);
+            font-size:25px;
+            background-color: #ff4d5a;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="link">Home</a>
+        </nav>
+    </header>
+
+    <h1>Swimming Clicker Race</h1>
+
+    <div id="ui-container">
+        <div class="controls-row">
+            <label for="distance-select">Select Event: </label>
+            <select id="distance-select">
+                <option value="25">25 Yards (Super Sprint)</option>
+                <option value="50" selected>50 Yards (Sprint)</option>
+                <option value="100">100 Yards (Mid-Distance)</option>
+                <option value="200">200 Yards (Endurance)</option>
+            </select>
+            <button id="start-btn">Take Your Marks... GO!</button>
+        </div>
+        <p>*Note: Times from this game are NOT realistic*</p>
+        <div id="instructions">You are in <b>Lane 4</b>. Mash the <b>SPACEBAR</b> to swim!</div>
+    </div>
+
+    <div id="pool">
+        <div id="finish-line"></div>
+        </div>
+
+    <div id="results-screen">
+        <div class="modal-content">
+            <h2 id="results-title">Race Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Pl.</th>
+                        <th>Lane</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+            <button id="retry-btn">Race Again</button>
+        </div>
+    </div>
+    <script>
+    const pool = document.getElementById('pool');
+        const startBtn = document.getElementById('start-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const distanceSelect = document.getElementById('distance-select');
+        const resultsScreen = document.getElementById('results-screen');
+        const resultsTitle = document.getElementById('results-title');
+        const leaderboardBody = document.getElementById('leaderboard-body');
+
+        const TOTAL_LANES = 8;
+        const PLAYER_LANE = 4;
+        const START_LINE = 30;
+        const FINISH_LINE_X = 740; 
+
+        let gameActive = false;
+        let startTime = 0;
+        let timerInterval;
+        let swimmers = [];
+
+        // BALANCED DIFFICULTY CALIBRATION (NOT TOO HARD, NOT TOO EASY)
+        const distanceSettings = {
+            "25": { 
+                clickPower: 0.9, 
+                maxSpeed: 5.8, 
+                drag: 0.96,
+                aiMin: 1.15, aiMax: 1.35 
+                // TARGET TIME: ~11.0 to 13.5 seconds
+            },
+            "50": { 
+                clickPower: 0.45, 
+                maxSpeed: 2.9, 
+                drag: 0.95,
+                aiMin: 0.57, aiMax: 0.64 
+                // TARGET TIME: ~22.0 to 25.5 seconds
+            },
+            "100": { 
+                clickPower: 0.22, 
+                maxSpeed: 1.38, 
+                drag: 0.94,
+                aiMin: 0.265, aiMax: 0.295 
+                // TARGET TIME: ~49.0 to 55.0 seconds
+            },
+            "200": { 
+                clickPower: 0.11, 
+                maxSpeed: 0.69, 
+                drag: 0.93,
+                aiMin: 0.131, aiMax: 0.144 
+                // TARGET TIME: ~1:44.00 to 1:55.00 (104 - 115 seconds)
+            }
+        };
+
+        let currentSettings = distanceSettings["50"]; // Default
+
+        function initPool() {
+            pool.innerHTML = '<div id="finish-line"></div>';
+            swimmers = [];
+            
+            // Lock in chosen event settings
+            currentSettings = distanceSettings[distanceSelect.value];
+
+            for (let i = 1; i <= TOTAL_LANES; i++) {
+                const lane = document.createElement('div');
+                lane.classList.add('lane');
+                if (i === PLAYER_LANE) lane.classList.add('player-lane');
+
+                const laneNum = document.createElement('div');
+                laneNum.classList.add('lane-number');
+                laneNum.innerText = i;
+                lane.appendChild(laneNum);
+
+                const swimmer = document.createElement('div');
+                swimmer.classList.add('swimmer');
+                swimmer.id = `swimmer-${i}`;
+                swimmer.innerText = i === PLAYER_LANE ? "YOU" : `AI`;
+                lane.appendChild(swimmer);
+
+                pool.appendChild(lane);
+
+                // Calculate a random unique speed baseline for this specific AI lane
+                const aiSpeedRange = currentSettings.aiMax - currentSettings.aiMin;
+                const assignedAiBase = currentSettings.aiMin + (Math.random() * aiSpeedRange);
+
+                swimmers.push({
+                    lane: i,
+                    isPlayer: (i === PLAYER_LANE),
+                    element: swimmer,
+                    x: START_LINE,
+                    speed: 0,
+                    finished: false,
+                    finalTime: null,
+                    aiBaseSpeed: assignedAiBase
+                });
+            }
+        }
+
+        function startRace() {
+            if (gameActive) return;
+            initPool(); 
+            
+            startBtn.disabled = true;
+            distanceSelect.disabled = true; 
+            gameActive = true;
+            startTime = Date.now();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
+            let allFinished = true;
+            const currentTime = (Date.now() - startTime) / 1000;
+
+            swimmers.forEach(swimmer => {
+                if (!swimmer.finished) {
+                    allFinished = false;
+
+                    if (swimmer.isPlayer) {
+                        swimmer.speed *= currentSettings.drag; 
+                    } else {
+                        // BALANCED AI BEHAVIOR
+                        // AI bursts dropped back to a 16% chance per frame
+                        if (Math.random() < 0.16) {
+                            swimmer.speed += Math.random() * (currentSettings.clickPower * 0.8);
+                        }
+                        // Added back a tiny bit more water drag to slow AI down naturally
+                        swimmer.speed *= (currentSettings.drag - 0.01); 
+                        
+                        // MODERATE FINAL SPRINT:
+                        // Past the halfway mark (400px), AI gets a reasonable 8% boost
+                        let currentBaseline = swimmer.aiBaseSpeed;
+                        if (swimmer.x > 400) {
+                            currentBaseline *= 1.08; 
+                        }
+
+                        if(swimmer.speed < currentBaseline) swimmer.speed = currentBaseline;
+                    }
+
+                    // Cap maximum terminal speed
+                    if (swimmer.speed > currentSettings.maxSpeed) {
+                        swimmer.speed = currentSettings.maxSpeed;
+                    }
+
+                    swimmer.x += swimmer.speed;
+
+                    if (swimmer.x >= FINISH_LINE_X) {
+                        swimmer.x = FINISH_LINE_X;
+                        swimmer.finished = true;
+                        swimmer.finalTime = currentTime;
+                    }
+
+                    swimmer.element.style.left = swimmer.x + 'px';
+                }
+            });
+
+            if (allFinished) {
+                endRace();
+            } else {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Handle spacebar click mechanics
+        window.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+
+            if (e.code === 'Space' || e.keyCode === 32) {
+                e.preventDefault(); 
+                
+                const player = swimmers[PLAYER_LANE - 1];
+                if (!player.finished) {
+                    // Add physics power step forward mapped to current distance profile
+                    player.speed += currentSettings.clickPower; 
+                }
+            }
+        });
+
+        function endRace() {
+            gameActive = false;
+            
+            const leaderboard = [...swimmers].sort((a, b) => a.finalTime - b.finalTime);
+            
+            resultsTitle.innerText = `${distanceSelect.value} Yard Results`;
+            leaderboardBody.innerHTML = '';
+            leaderboard.forEach((entry, index) => {
+                const rank = index + 1;
+                const row = document.createElement('tr');
+                if (entry.isPlayer) row.classList.add('player-row');
+
+                row.innerHTML = `
+                    <td>${rank}</td>
+                    <td>Lane ${entry.lane} ${entry.isPlayer ? '(You)' : ''}</td>
+                    <td>${entry.finalTime.toFixed(2)}s</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+
+            resultsScreen.style.display = 'flex';
+        }
+
+        startBtn.addEventListener('click', startRace);
+        distanceSelect.addEventListener('change', initPool); 
+
+        retryBtn.addEventListener('click', () => {
+            resultsScreen.style.display = 'none';
+            startBtn.disabled = false;
+            distanceSelect.disabled = false; 
+            initPool();
+        });
+
+        initPool();
+    </script>
+</body>
+</html>
